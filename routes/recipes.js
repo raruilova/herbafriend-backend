@@ -1,5 +1,9 @@
 const express = require('express');
 const RecipesService = require('../services/recipes');
+const validationHandler = require('../utils/middleware/validationHandler');
+
+// importacion de la validacion de los datos
+const {recipeIdSchema, createRecipeSchema, updateRecipeSchema } = require('../utils/schemas/recipes');
 
 function recipesApi(app) {
     const router = express.Router();
@@ -13,6 +17,7 @@ function recipesApi(app) {
         const {tags} = req.query;
         try {
             const recepies = await recipesService.getRecipes({tags});
+            //throw new Error('Error getting recipes') -- me trae el stack en dev mas no en production
 
             res.status(200).json({
                 data: recepies,
@@ -22,8 +27,8 @@ function recipesApi(app) {
             next(error);
         }
     });
-
-    router.get('/:recepiId', async function(req, res, next) {
+                                                                        //saco de los paramatros ese id
+    router.get('/:recepiId', validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
         const {recepiId} = req.params
         try {
             const recepiesId = await recipesService.getRecepi({recepiId});
@@ -37,11 +42,11 @@ function recipesApi(app) {
         }
     });
     //create
-    router.post('/', async function(req, res, next) {
+    router.post('/',validationHandler(createRecipeSchema), async function(req, res, next) {
         
         const {body:recepi} = req;
         try {
-            const createRecepiId = await recipesService.createRecipe({recepi});
+            const createRecepiId = await recipesService.createRecepi({recepi});
 
             res.status(201).json({
                 data: createRecepiId,
@@ -52,7 +57,7 @@ function recipesApi(app) {
         }
     });
     //update
-    router.put('/:recepiId', async function(req, res, next) {
+    router.put('/:recepiId', validationHandler({recepiId: recipeIdSchema}, 'params') ,validationHandler(updateRecipeSchema),async function(req, res, next) {
         const {recepiId} = req.params
         const {body:recepi} = req;
         try {
@@ -67,7 +72,7 @@ function recipesApi(app) {
         }
     });
     //delete
-    router.delete('/:recepiId', async function(req, res, next) {
+    router.delete('/:recepiId',validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
         const {recepiId} = req.params
         try {
             const deleteRecepies = await await recipesService.deleteRecipe({recepiId});
