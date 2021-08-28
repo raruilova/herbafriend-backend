@@ -2,12 +2,17 @@ const express = require('express');
 
 const app = express();
 
+const cors = require('cors');
+
 const {config} = require('./config');
 const recipesApi = require('./routes/recipes');
 //middlewares
 const {logError, errorHandler, wrapError } = require('./utils/middleware/errorHandlers');
 const notFoundHandler = require('./utils/middleware/notFoundHandler');
 //
+
+//cors 
+app.use(cors());
 
 //body parcer
 app.use(express.json()); //para que interprete json
