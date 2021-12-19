@@ -1,9 +1,13 @@
 const express = require('express');
+const passport = require('passport');
 const RecipesService = require('../services/recipes');
 const validationHandler = require('../utils/middleware/validationHandler');
 
 // importacion de la validacion de los datos
 const {recipeIdSchema, createRecipeSchema, updateRecipeSchema } = require('../utils/schemas/recipes');
+
+//strategy
+require('../utils/auth');
 
 function recipesApi(app) {
     const router = express.Router();
@@ -13,7 +17,7 @@ function recipesApi(app) {
 
     const recipesService = new RecipesService();
 
-    router.get('/', async function(req, res, next) {
+    router.get('/', passport.authenticate('jwt', {session: false}),async function(req, res, next) {
         const {tags} = req.query;
         try {
             const recepies = await recipesService.getRecipes({tags});
@@ -28,7 +32,7 @@ function recipesApi(app) {
         }
     });
                                                                         //saco de los paramatros ese id
-    router.get('/:recepiId', validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
+    router.get('/:recepiId',passport.authenticate('jwt', {session: false}) ,validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
         const {recepiId} = req.params
         try {
             const recepiesId = await recipesService.getRecepi({recepiId});
@@ -42,7 +46,7 @@ function recipesApi(app) {
         }
     });
     //create
-    router.post('/',validationHandler(createRecipeSchema), async function(req, res, next) {
+    router.post('/', passport.authenticate('jwt', {session: false}),validationHandler(createRecipeSchema), async function(req, res, next) {
         
         const {body:recepi} = req;
         try {
@@ -57,7 +61,7 @@ function recipesApi(app) {
         }
     });
     //update
-    router.put('/:recepiId', validationHandler({recepiId: recipeIdSchema}, 'params') ,validationHandler(updateRecipeSchema),async function(req, res, next) {
+    router.put('/:recepiId', passport.authenticate('jwt', {session: false}) ,validationHandler({recepiId: recipeIdSchema}, 'params') ,validationHandler(updateRecipeSchema),async function(req, res, next) {
         const {recepiId} = req.params
         const {body:recepi} = req;
         try {
@@ -72,7 +76,7 @@ function recipesApi(app) {
         }
     });
     //delete
-    router.delete('/:recepiId',validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
+    router.delete('/:recepiId', passport.authenticate('jwt', {session: false}),validationHandler({recepiId: recipeIdSchema}, 'params'), async function(req, res, next) {
         const {recepiId} = req.params
         try {
             const deleteRecepies = await await recipesService.deleteRecipe({recepiId});

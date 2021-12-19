@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const {config} = require('./config');
 const recipesApi = require('./routes/recipes');
+const authApi = require('./routes/auth');
 //middlewares
 const {logError, errorHandler, wrapError } = require('./utils/middleware/errorHandlers');
 const notFoundHandler = require('./utils/middleware/notFoundHandler');
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json()); //para que interprete json
 //
 
+authApi(app);
 recipesApi(app);
 
 // uso de middlewares -- simpre al final de las rutas
