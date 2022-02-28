@@ -7,6 +7,12 @@ class UserService {
         this.mongo = new MongoLib();
     }
 
+    async getUsers({tags}) {
+        const query = tags && {tags: {$in: tags}}; //tags dentro de los tags que estoy pasando
+        const recepis = await this.mongoDb.getAll(this.collection, query);
+        return recepis || [];
+    }
+
     async getUser(email) {
         const [user] = await this.mongo.getAll(this.collection, {email});
         return user;
